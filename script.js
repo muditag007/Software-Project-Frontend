@@ -1,147 +1,115 @@
-const users = [
-    { 
-        id: 1, 
-        name: "Ravi Kumar", 
-        email: "ravi@example.com", 
-        mobile: "9876543210", 
-        dob: "1999-05-15", 
-        voted: false 
+const users = {
+    1: {
+        name: "Rahul Sharma",
+        dob: "1992-08-15",
+        area: "Delhi",
+        mobile: "98765 43210"
     },
-    { 
-        id: 2, 
-        name: "Priya Patel", 
-        email: "priya@example.com", 
-        mobile: "1234567890", 
-        dob: "2005-08-25", 
-        voted: true 
+    2: {
+        name: "Priya Patel",
+        dob: "1988-03-20",
+        area: "Mumbai",
+        mobile: "87654 32109"
+    },
+    3: {
+        name: "Amit Singh",
+        dob: "1990-11-05",
+        area: "Bangalore",
+        mobile: "76543 21098"
+    },
+    4: {
+        name: "Kavita Reddy",
+        dob: "1985-06-12",
+        area: "Hyderabad",
+        mobile: "65432 10987"
+    },
+    5: {
+        name: "Sandeep Kumar",
+        dob: "1994-01-25",
+        area: "Chennai",
+        mobile: "54321 09876"
     }
-];
+};
 
-const parties = [
-    { id: 1, name: "Party A" },
-    { id: 2, name: "Party B" },
-    { id: 3, name: "Party C" },
-    { id: 4, name: "Party D" },
-    { id: 5, name: "Party E" }
-];
+const parties = ["BJP", "INC", "AAP","BSP","NRP"];
 
 let currentUser = null;
+let selectedParty = null;
 
-document.getElementById("scanIdBtn").addEventListener("click", async () => {
-    try {
-        const userId = parseInt(prompt("Please enter your user ID (integer number):"));
-        
-        // Fetch user data from backend API
-        const response = await fetch(`http://localhost:3000/users/${userId}`);
-        print(response.body);
-        if (!response.ok) {
-            throw new Error('User not found!');
-        }
-        
-        const user = await response.json();
+function scanFingerprint() {
+    document.getElementById('welcomePage').classList.add('hidden');
+    document.getElementById('enterIdPage').classList.remove('hidden');
+}
 
-        const age = calculateAge(user.dob);
-        if (age < 18) {
-            document.getElementById("userIdError").textContent = "You are not eligible to vote (age below 18)!";
-            return;
-        }
-
-        if (user.voted) {
-            document.getElementById("userIdError").textContent = "You have already voted!";
-            return;
-        }
-
-        // If everything is okay, proceed to show user info
-        currentUser = user;
-        showUserInfo();
-    } catch (error) {
-        // Handle errors
-        document.getElementById("userIdError").textContent = error.message;
+function checkUserId() {
+    const userId = parseInt(document.getElementById('userIdInput').value);
+    if (userId >= 1 && userId <= 5) {
+        currentUser = userId;
+        displayUserInfoAndParty();
+    } else {
+        alert("Invalid user ID.");
     }
-});
+}
 
-
-// document.getElementById("scanIdBtn").addEventListener("click", () => {
-//     const userId = parseInt(prompt("Please enter your user ID (integer number):"));
-//     const user = users.find(u => u.id === userId);
-
-//     if (!user) {
-//         document.getElementById("userIdError").textContent = "User not found!";
-//         return;
-//     }
-
-//     const age = calculateAge(user.dob);
-//     if (age < 18) {
-//         document.getElementById("userIdError").textContent = "You are not eligible to vote (age below 18)!";
-//         return;
-//     }
-
-//     if (user.voted) {
-//         document.getElementById("userIdError").textContent = "You have already voted!";
-//         return;
-//     }
-
-//     currentUser = user;
-//     showUserInfo();
-// });
-
-function showUserInfo() {
-    document.getElementById("userIdError").textContent = "";
-    document.body.innerHTML = `
-        <div class="container">
-            <h2>Welcome, ${currentUser.name}</h2>
-            <h3>User Information:</h3>
-            <p><strong>Name:</strong> ${currentUser.name}</p>
-            <p><strong>Email:</strong> ${currentUser.email}</p>
-            <p><strong>Date of Birth:</strong> ${currentUser.dob}</p>
-            <p><strong>Phone Number:</strong> ${currentUser.mobile}</p>
-            <h3>Select a party to vote:</h3>
-            <ul>
-                ${parties.map(party => `
-                    <li>
-                        <input type="radio" id="party${party.id}" name="party" value="${party.id}">
-                        <label for="party${party.id}">${party.name}</label>
-                    </li>
-                `).join("")}
-            </ul>
-            <button id="confirmVoteBtn">Confirm Vote</button>
-            <div id="voteError" class="error"></div>
-        </div>
+function displayUserInfoAndParty() {
+    const userInfo = users[currentUser];
+    const userDetails = `
+        <h2>${userInfo.name}</h2>
+        <p><strong>Date of Birth:</strong> ${userInfo.dob}</p>
+        <p><strong>Area:</strong> ${userInfo.area}</p>
+        <p><strong>Mobile:</strong> ${userInfo.mobile}</p>
     `;
+    document.getElementById('userDetails').innerHTML = userDetails;
 
-    document.getElementById("confirmVoteBtn").addEventListener("click", confirmVote);
+    const partyOptions = parties.map(party => `
+        <button class="party-button" onclick="selectParty('${party}')">${party}</button>
+    `).join('');
+    document.getElementById('votingOptions').innerHTML = partyOptions;
+
+    document.getElementById('enterIdPage').classList.add('hidden');
+    document.getElementById('userInfoAndPartyPage').classList.remove('hidden');
+}
+
+function selectParty(party) {
+    selectedParty = party;
+    // Remove 'selected' class from all party buttons
+    document.querySelectorAll('.party-button').forEach(button => {
+        button.classList.remove('selected');
+    });
+    // Add 'selected' class to the clicked party button
+    event.target.classList.add('selected');
+    document.getElementById('confirmPartyButton').classList.remove('hidden');
+}
+
+function confirmPartySelection() {
+    document.getElementById('userInfoAndPartyPage').classList.add('hidden');
+    document.getElementById('confirmIdPage').classList.remove('hidden');
 }
 
 function confirmVote() {
-    const selectedPartyId = parseInt(document.querySelector('input[name="party"]:checked').value);
-    const userId = parseInt(prompt("Please enter your user ID to confirm vote:"));
-
-    if (userId !== currentUser.id) {
-        document.getElementById("voteError").textContent = "Authentication failed!";
-        return;
+    const reEnteredId = parseInt(document.getElementById('confirmUserIdInput').value);
+    if (reEnteredId === currentUser) {
+        document.getElementById('confirmIdPage').classList.add('hidden');
+        document.getElementById('voteResultPage').classList.remove('hidden');
+        document.getElementById('voteResultMessage').textContent = "Thank you for voting for ${selectedParty}!";
+    } else {
+        document.getElementById('confirmIdPage').classList.add('hidden');
+        document.getElementById('authFailedPage').classList.remove('hidden');
     }
 
-    currentUser.voted = true;
-    document.body.innerHTML = `
-        <div class="container">
-            <h2>Thank you for voting, ${currentUser.name}!</h2>
-        </div>
-    `;
-
+    // Reset portal after timeout
     setTimeout(() => {
-        window.location.href = "index.html"; // Redirect to home page after 5 seconds
+        resetVotingPortal();
     }, 5000);
 }
 
-function calculateAge(dateString) {
-    const today = new Date();
-    const birthDate = new Date(dateString);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const month = today.getMonth() - birthDate.getMonth();
-    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age;
+function resetVotingPortal() {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.add('hidden');
+    });
+    document.getElementById('welcomePage').classList.remove('hidden');
+    document.getElementById('userIdInput').value = "";
+    document.getElementById('confirmUserIdInput').value = "";
+    currentUser = null;
+    selectedParty = null;
 }
-
-

@@ -3,16 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting System</title>
+    <title>Fingerprint Voting Portal</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('background.jpg');
+            background-size: cover;
+            padding: 20px;
+        }
+
+        .page {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="number"] {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            width: 100px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .user-details, .party-options {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .party-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .party-button:hover, .party-button.selected {
+            background-color: #0056b3;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the Voting System</h1>
-        <button id="scanIdBtn">Scan ID</button>
-        <div id="userIdError" class="error"></div>
+        <div class="page" id="welcomePage">
+            <div class="welcome-container">
+                <img src="Animation.gif" alt="Fingerprint scanning" width="300">
+                <h1>Welcome to the Fingerprint Voting Portal</h1>
+                <p>Please scan your fingerprint to proceed.</p>
+                <button onclick="scanFingerprint()">Scan Fingerprint</button>
+            </div>
+        </div>
+
+        <div class="page hidden" id="enterIdPage">
+            <div class="enterId-container">
+                <h2>Enter Your ID (1-5)</h2>
+                <input type="number" id="userIdInput" min="1" max="5">
+                <button onclick="checkUserId()">Proceed</button>
+            </div>
+        </div>
+
+        <div class="page hidden" id="userInfoAndPartyPage">
+            <div class="user-info">
+                <div class="user-details" id="userDetails"></div>
+                <div class="party-options" id="votingOptions"></div>
+                <button onclick="confirmPartySelection()" id="confirmPartyButton" class="hidden">Vote Now</button>
+            </div>
+        </div>
+
+        <div class="page hidden" id="confirmIdPage">
+            <div class="confirmId-container">
+                <h2>Confirm Your ID</h2>
+                <p>Please re-enter your ID to confirm your vote:</p>
+                <input type="number" id="confirmUserIdInput" min="1" max="5">
+                <button onclick="confirmVote()">Confirm</button>
+            </div>
+        </div>
+
+        <div class="page hidden" id="voteResultPage">
+            <div class="vote-result-container">
+                <h2>Thank You for Voting!</h2>
+                <p id="voteResultMessage"></p>
+            </div>
+        </div>
+
+        <div class="page hidden" id="authFailedPage">
+            <div class="auth-failed-container">
+                <h2>Authentication Failed</h2>
+                <p>Sorry, the entered ID does not match.</p>
+            </div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
